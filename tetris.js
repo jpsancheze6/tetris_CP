@@ -366,10 +366,10 @@
             // scoreboard
             g.fillStyle = textColor;
             g.font = smallFont;
-            g.fillText('Punteo alto ' + scoreboard.getTopscore(), scoreX, scoreY);
-            g.fillText('Nivel       ' + scoreboard.getLevel(), scoreX, scoreY + 30);
-            g.fillText('Lineas      ' + scoreboard.getLines(), scoreX, scoreY + 60);
-            g.fillText('Punteo      ' + scoreboard.getScore(), scoreX, scoreY + 90);
+            g.fillText('Punteo alto    ' + scoreboard.getTopscore(), scoreX, scoreY);
+            g.fillText('Nivel          ' + scoreboard.getLevel(), scoreX, scoreY + 30);
+            g.fillText('Lineas         ' + scoreboard.getLines(), scoreX, scoreY + 60);
+            g.fillText('Punteo         ' + scoreboard.getScore(), scoreX, scoreY + 90);
 
             // preview
             var minX = 5, minY = 5, maxX = 0, maxY = 0;
