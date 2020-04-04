@@ -1,5 +1,6 @@
 'use strict';
         var canvas = document.getElementById('espacio_trabajo');
+        var estado = document.getElementById('estado');
         canvas.width = 640;
         canvas.height = 640;
 
@@ -9,6 +10,9 @@
         var down = { x: 0, y: 1 };
         var left = { x: -1, y: 0 };
 
+        var cantidades_consumidor = 0;
+        var cantidades_productor = 0;
+        var bandera = true;
         var EMPTY = -1;
         var BORDER = -2;
         var verificar = 0;
@@ -58,47 +62,37 @@
         addEventListener('keydown', function (event) {
             if (!keyDown) {
                 keyDown = true;
-
                 if (scoreboard.isGameOver())
                     return;
-
                 switch (event.key) {
-
                     case 'w':
                     case 'ArrowUp':
-                        if (canRotate(fallingShape))
+                        if (puedeRotar(fallingShape))
                             rotate(fallingShape);
                         break;
-
                     case 'a':
                     case 'ArrowLeft':
-                        if (canMove(fallingShape, left))
-                            move(left);
+                        if (puedeMover(fallingShape, left))
+                            mover(left);
                         break;
-
                     case 'd':
                     case 'ArrowRight':
-                        if (canMove(fallingShape, right))
-                            move(right);
+                        if (puedeMover(fallingShape, right))
+                            mover(right);
                         break;
 
                     case 's':
                     case 'ArrowDown':
-                        if (!fastDown) {
-                            fastDown = true;
-                            while (canMove(fallingShape, down)) {
-                                move(down);
-                                draw();
-                            }
-                            shapeHasLanded();
+                        if(puedeMover(fallingShape, down)) {
+                            mover(down);
                         }
                 }
-                draw();
+                dibujar();
             }
         });
 
         addEventListener('click', function () {
-            startNewGame();
+            empezarJuego();
         });
 
         addEventListener('keyup', function () {
@@ -106,7 +100,7 @@
             fastDown = false;
         });
 
-        function canRotate(s) {
+        function puedeRotar(s) {
             if (s === Shapes.Square)
                 return false;
 
@@ -139,12 +133,12 @@
             });
         }
 
-        function move(dir) {
+        function mover(dir) {
             fallingShapeRow += dir.y;
             fallingShapeCol += dir.x;
         }
 
-        function canMove(s, dir) {
+        function puedeMover(s, dir) {
             return s.pos.every(function (p) {
                 var newCol = fallingShapeCol + dir.x + p[0];
                 var newRow = fallingShapeRow + dir.y + p[1];
@@ -152,82 +146,8 @@
             });
         }
 
-        //productor
-        function shapeHasLanded() {
-            addShape(fallingShape);
-            //promesa
-            const p = new Promise((resolve, reject) => {
-                if(verificar == 0) { //si se cumple la promesa se crea una nueva forma
-                    if (fallingShapeRow < 2) {
-                        scoreboard.setGameOver();
-                        scoreboard.setTopscore();
-                    } else {
-                        scoreboard.addLines(removeLines());
-                      }
-                      selectShape();
-                } else {  //si no se cumple la promesa se termina el juego
-                    reject();
-                }
-            });
-            //llama a la promesa
-            p.then(res => {
-                verificar = 0;
-            })
-            .catch(error => {
-              verificar = 1;
-            });
-        }
-
-        //Consumidor1
-        function removeLines() {
-            var count = 0;
-            const p = new Promise((resolve, reject) =>{
-                if (verificar==0){
-                    for (var r = 0; r < nRows - 1; r++) {
-                        for (var c = 1; c < nCols - 1; c++) {
-                            if (grid[r][c] === EMPTY)
-                                break;
-                            if (c === nCols - 2) {
-                                count++;
-                                removeLine(r);
-                            }
-                        }
-                    }
-                }
-            });
-            //llama a la promesa
-            p.then(res => {
-                verificar = 0;
-            })
-            .catch(error => {
-                verificar = 1;
-            });
-            return count;
-        }
-        //consumidor2
-        function removeLine(line) {
-            const p = new Promise((resolve, reject) =>{
-                if (verificar==0){
-                    for (var c = 0; c < nCols; c++)
-                        grid[line][c] = EMPTY;
-
-                    for (var c = 0; c < nCols; c++) {
-                        for (var r = line; r > 0; r--)
-                            grid[r][c] = grid[r - 1][c];
-                    }
-                }
-            });
-            //Llama a promesa
-            p.then(res => {
-                verificar = 0;
-            })
-            .catch(error => {
-                verificar = 1;
-            });
-        }
-
         //agrega la forma en el piso
-        function addShape(s) {
+        function agregarForma(s) {
             s.pos.forEach(function (p) {
                 grid[fallingShapeRow + p[1]][fallingShapeCol + p[0]] = s.ordinal;
             });
@@ -252,7 +172,7 @@
         };
 
         //2.genera las formas al azar
-        function getRandomShape() {
+        function figuraAleatoria() {
             var keys = Object.keys(Shapes); //formas
             var ord = Math.floor(Math.random() * keys.length);//genera la forma segun la posicion
             var shape = Shapes[keys[ord]];
@@ -268,11 +188,11 @@
         }
 
         //1.genera las formas una por una
-        function selectShape() {
+        function seleccionarFigura() {
             fallingShapeRow = 1; //posición de la figura vertical
             fallingShapeCol = 5; //posición de la figura horizontal
             fallingShape = nextShape;
-            nextShape = getRandomShape(); //genera la forma aleatoria
+            nextShape = figuraAleatoria(); //genera la forma aleatoria
             if (fallingShape != null) {
                 fallingShape.reset();
             }
@@ -333,7 +253,6 @@
             }
 
             this.addLines = function (line) {
-
                 switch (line) {
                     case 1:
                         this.addScore(10);
@@ -350,7 +269,6 @@
                     default:
                         return;
                 }
-
                 lines += line;
                 if (lines > 10) {
                     this.addLevel();
@@ -377,10 +295,10 @@
             }
         }
 
-        function draw() {
+        function dibujar() {
             g.clearRect(0, 0, canvas.width, canvas.height);
 
-            drawUI();
+            dibujarInterfaz();
 
             if (scoreboard.isGameOver()) {
                 drawStartScreen();
@@ -399,7 +317,7 @@
             g.fillText('Tetris', titleX, titleY);
 
             g.font = smallFont;
-            g.fillText('click to start', clickX, clickY);
+            g.fillText('Click para empezar', clickX, clickY);
         }
 
         function fillRect(r, color) {
@@ -421,9 +339,7 @@
             g.strokeStyle = squareBorder;
             g.strokeRect(leftMargin + c * bs, topMargin + r * bs, bs, bs);
         }
-
-        function drawUI() {
-
+        function dibujarInterfaz() {
             // background
             fillRect(outerRect, bgColor);
             fillRect(gridRect, gridColor);
@@ -446,10 +362,11 @@
             // scoreboard
             g.fillStyle = textColor;
             g.font = smallFont;
-            g.fillText('hiscore    ' + scoreboard.getTopscore(), scoreX, scoreY);
-            g.fillText('level      ' + scoreboard.getLevel(), scoreX, scoreY + 30);
-            g.fillText('lines      ' + scoreboard.getLines(), scoreX, scoreY + 60);
-            g.fillText('score      ' + scoreboard.getScore(), scoreX, scoreY + 90);
+            g.fillText('Punteo alto     ' + scoreboard.getTopscore(), scoreX, scoreY);
+            g.fillText('Nivel           ' + scoreboard.getLevel(), scoreX, scoreY + 30);
+            g.fillText('Punteo          ' + scoreboard.getScore(), scoreX, scoreY + 60);
+            g.fillText('Usos Productor  ' + cantidades_productor, scoreX, scoreY + 150);
+            g.fillText('Usos Consumidor ' + cantidades_consumidor, scoreX, scoreY + 180);
 
             // preview
             var minX = 5, minY = 5, maxX = 0, maxY = 0;
@@ -481,18 +398,23 @@
             var requestId = requestAnimationFrame(function () {
                 animate(lastFrameTime);
             });
+            if(bandera){
+                cantidades_productor++;
+                bandera = false;
+            }
+            
             var time = new Date().getTime();
             //velocidad en que salen las figuras
             var delay = scoreboard.getSpeed();
 
             if (lastFrameTime + delay < time) {
                 if (!scoreboard.isGameOver()) {
-                    if (canMove(fallingShape, down)) {
-                        move(down);
+                    if (puedeMover(fallingShape, down)) {
+                        mover(down);
                     } else {
-                        shapeHasLanded();
+                        productor();
                     }
-                    draw();
+                    dibujar();
                     lastFrameTime = time;
                 } else {
                     cancelAnimationFrame(requestId);
@@ -500,11 +422,12 @@
             }
         }
 
-        function startNewGame() {
+        function empezarJuego() {
             initGrid();
-            selectShape();
+            seleccionarFigura();
             scoreboard.reset();
             animate(-1);
+
         }
 
         function initGrid() {
@@ -523,10 +446,94 @@
             }
         }
 
+        //productor
+        function productor() {
+            cantidades_productor++;
+            agregarForma(fallingShape);
+            //promesa
+            const p = new Promise((resolve, reject) => {
+                if(verificar == 0) { //si se cumple la promesa se crea una nueva forma
+                    if (fallingShapeRow < 2) {
+                        scoreboard.setGameOver();
+                        scoreboard.setTopscore();
+                    } else {
+                        scoreboard.addLines(contadorLineas());
+                    }
+                    seleccionarFigura();
+                } else {  //si no se cumple la promesa se termina el juego
+                    reject();
+                }
+            });
+            //llama a la promesa
+            p.then(res => {
+                verificar = 0;
+            })
+            .catch(error => {
+              verificar = 1;
+            });
+        }
+
+        //Consumidor1
+        function contadorLineas() {
+            var count = 0;
+            const p = new Promise((resolve, reject) =>{
+                if (verificar==0){
+                    for (var r = 0; r < nRows - 1; r++) {
+                        for (var c = 1; c < nCols - 1; c++) {
+                            if (grid[r][c] === EMPTY)
+                                break;
+                            if (c === nCols - 2) {
+                                count++;
+                                consumidor(r);
+                            }
+                        }
+                    }
+                }
+            });
+            //llama a la promesa
+            p.then(res => {
+                verificar = 0;
+            }).catch(error => {
+                verificar = 1;
+            });
+            return count;
+        }
+        //consumidor2
+        function consumidor(line) {
+            const p = new Promise((resolve, reject) =>{
+                if (verificar==0){
+                    cantidades_consumidor++;
+                    //Timer de ejecución
+                    for (var c = 0; c < nCols; c++)
+                        grid[line][c] = EMPTY;
+                    for (var c = 0; c < nCols; c++) {
+                        for (var r = line; r > 0; r--)
+                            grid[r][c] = grid[r - 1][c];
+                    }
+                }
+            });
+            //Llama a promesa
+            p.then(res => {
+                verificar = 0;
+            }).catch(error => {
+                verificar = 1;
+            });
+        }
+
+        function sleep(milliseconds) {
+            const date = Date.now();
+            let currentDate = null;
+            do {
+              currentDate = Date.now();
+              estado.innerHTML = 'Atendiendo consumidor';
+            } while (currentDate - date < milliseconds);
+            estado.innerHTML = '';
+          }
+
         function init() {
             initGrid();
-            selectShape();
-            draw();
+            seleccionarFigura();
+            dibujar();
         }
 
         init();
