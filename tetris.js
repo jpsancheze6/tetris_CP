@@ -10,6 +10,10 @@
         var down = { x: 0, y: 1 };
         var left = { x: -1, y: 0 };
 
+
+        var cantidades_consumidor = 0;
+        var cantidades_productor = 0;
+        var bandera = true;
         var EMPTY = -1;
         var BORDER = -2;
         var verificar = 0;
@@ -271,9 +275,7 @@
                     default:
                         return;
                 }
-
                 lines += line;
-                sleep(2000);
                 if (lines > 10) {
                     this.addLevel();
                 }
@@ -366,10 +368,12 @@
             // scoreboard
             g.fillStyle = textColor;
             g.font = smallFont;
-            g.fillText('Punteo alto    ' + scoreboard.getTopscore(), scoreX, scoreY);
-            g.fillText('Nivel          ' + scoreboard.getLevel(), scoreX, scoreY + 30);
-            g.fillText('Lineas         ' + scoreboard.getLines(), scoreX, scoreY + 60);
-            g.fillText('Punteo         ' + scoreboard.getScore(), scoreX, scoreY + 90);
+            g.fillText('Punteo alto     ' + scoreboard.getTopscore(), scoreX, scoreY);
+            g.fillText('Nivel           ' + scoreboard.getLevel(), scoreX, scoreY + 30);
+            g.fillText('Lineas          ' + scoreboard.getLines(), scoreX, scoreY + 60);
+            g.fillText('Punteo          ' + scoreboard.getScore(), scoreX, scoreY + 90);
+            g.fillText('Usos Productor  ' + cantidades_productor, scoreX, scoreY + 150);
+            g.fillText('Usos Consumidor ' + cantidades_consumidor, scoreX, scoreY + 180);
 
             // preview
             var minX = 5, minY = 5, maxX = 0, maxY = 0;
@@ -401,6 +405,11 @@
             var requestId = requestAnimationFrame(function () {
                 animate(lastFrameTime);
             });
+            if(bandera){
+                cantidades_productor++;
+                bandera = false;
+            }
+            
             var time = new Date().getTime();
             //velocidad en que salen las figuras
             var delay = scoreboard.getSpeed();
@@ -425,6 +434,7 @@
             selectShape();
             scoreboard.reset();
             animate(-1);
+
         }
 
         function initGrid() {
@@ -445,7 +455,7 @@
 
         //productor
         function shapeHasLanded() {
-            console.log('Productor');
+            cantidades_productor++;
             addShape(fallingShape);
             //promesa
             const p = new Promise((resolve, reject) => {
@@ -499,6 +509,7 @@
         function consumidor(line) {
             const p = new Promise((resolve, reject) =>{
                 if (verificar==0){
+                    cantidades_consumidor++;
                     //Timer de ejecución
                     for (var c = 0; c < nCols; c++)
                         grid[line][c] = EMPTY;
