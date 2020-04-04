@@ -11,7 +11,7 @@
 
         var EMPTY = -1;
         var BORDER = -2;
-
+        var verificar = 0;
         var fallingShape;
         var nextShape;
         var dim = 640;
@@ -30,18 +30,18 @@
         var previewCenterY = 97;
         var mainFont = 'bold 48px monospace';
         var smallFont = 'bold 18px monospace';
-        var colors = ['green', 'red', 'blue', 'purple', 'orange', 'blueviolet', 'magenta'];
+        var colors = ['DarkOliveGreen', 'DarkRed', 'DarkCyan', 'DarkGray', 'DarkOrange', 'DarkSlateBlue', 'DarkMagenta'];
         var gridRect = { x: 46, y: 47, w: 308, h: 517 };
         var previewRect = { x: 387, y: 47, w: 200, h: 200 };
         var titleRect = { x: 100, y: 95, w: 252, h: 100 };
         var clickRect = { x: 50, y: 375, w: 252, h: 40 };
         var outerRect = { x: 5, y: 5, w: 630, h: 630 };
-        var squareBorder = 'white';
-        var titlebgColor = 'white';
+        var squareBorder = 'DarkSlateGrey';
+        var titlebgColor = 'SteelBlue';
         var textColor = 'black';
-        var bgColor = '#DDEEFF';
-        var gridColor = '#BECFEA';
-        var gridBorderColor = '#7788AA';
+        var bgColor = 'LightSteelBlue';
+        var gridColor = 'black';
+        var gridBorderColor = 'LightSlateGrey';
         var largeStroke = 5;
         var smallStroke = 2;
 
@@ -178,29 +178,52 @@
             });
         }
 
+        //Consumidor1
         function removeLines() {
             var count = 0;
-            for (var r = 0; r < nRows - 1; r++) {
-                for (var c = 1; c < nCols - 1; c++) {
-                    if (grid[r][c] === EMPTY)
-                        break;
-                    if (c === nCols - 2) {
-                        count++;
-                        removeLine(r);
+            const p = new Promise((resolve, reject) =>{
+                if (verificar==0){
+                    for (var r = 0; r < nRows - 1; r++) {
+                        for (var c = 1; c < nCols - 1; c++) {
+                            if (grid[r][c] === EMPTY)
+                                break;
+                            if (c === nCols - 2) {
+                                count++;
+                                removeLine(r);
+                            }
+                        }
                     }
                 }
-            }
+            });
+            //llama a la promesa
+            p.then(res => {
+                verificar = 0;
+            })
+            .catch(error => {
+                verificar = 1;
+            });
             return count;
         }
-
+        //consumidor2
         function removeLine(line) {
-            for (var c = 0; c < nCols; c++)
-                grid[line][c] = EMPTY;
+            const p = new Promise((resolve, reject) =>{
+                if (verificar==0){
+                    for (var c = 0; c < nCols; c++)
+                        grid[line][c] = EMPTY;
 
-            for (var c = 0; c < nCols; c++) {
-                for (var r = line; r > 0; r--)
-                    grid[r][c] = grid[r - 1][c];
-            }
+                    for (var c = 0; c < nCols; c++) {
+                        for (var r = line; r > 0; r--)
+                            grid[r][c] = grid[r - 1][c];
+                    }
+                }
+            });
+            //Llama a promesa
+            p.then(res => {
+                verificar = 0;
+            })
+            .catch(error => {
+                verificar = 1;
+            });
         }
 
         //agrega la forma en el piso
