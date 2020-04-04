@@ -50,6 +50,9 @@
         var fallingShapeRow;
         var fallingShapeCol;
 
+        var keyDown = false;
+        var fastDown = false;
+
         var grid = [];
         var scoreboard = new Scoreboard();
 
@@ -92,6 +95,11 @@
 
         addEventListener('click', function () {
             startNewGame();
+        });
+
+        addEventListener('keyup', function () {
+            keyDown = false;
+            fastDown = false;
         });
 
         function canRotate(s) {
