@@ -1,5 +1,6 @@
 'use strict';
         var canvas = document.getElementById('espacio_trabajo');
+        var estado = document.getElementById('estado');
         canvas.width = 640;
         canvas.height = 640;
 
@@ -149,80 +150,6 @@
                 var newCol = fallingShapeCol + dir.x + p[0];
                 var newRow = fallingShapeRow + dir.y + p[1];
                 return grid[newRow][newCol] === EMPTY;
-            });
-        }
-
-        //productor
-        function shapeHasLanded() {
-            addShape(fallingShape);
-            //promesa
-            const p = new Promise((resolve, reject) => {
-                if(verificar == 0) { //si se cumple la promesa se crea una nueva forma
-                    if (fallingShapeRow < 2) {
-                        scoreboard.setGameOver();
-                        scoreboard.setTopscore();
-                    } else {
-                        scoreboard.addLines(removeLines());
-                      }
-                      selectShape();
-                } else {  //si no se cumple la promesa se termina el juego
-                    reject();
-                }
-            });
-            //llama a la promesa
-            p.then(res => {
-                verificar = 0;
-            })
-            .catch(error => {
-              verificar = 1;
-            });
-        }
-
-        //Consumidor1
-        function removeLines() {
-            var count = 0;
-            const p = new Promise((resolve, reject) =>{
-                if (verificar==0){
-                    for (var r = 0; r < nRows - 1; r++) {
-                        for (var c = 1; c < nCols - 1; c++) {
-                            if (grid[r][c] === EMPTY)
-                                break;
-                            if (c === nCols - 2) {
-                                count++;
-                                removeLine(r);
-                            }
-                        }
-                    }
-                }
-            });
-            //llama a la promesa
-            p.then(res => {
-                verificar = 0;
-            })
-            .catch(error => {
-                verificar = 1;
-            });
-            return count;
-        }
-        //consumidor2
-        function removeLine(line) {
-            const p = new Promise((resolve, reject) =>{
-                if (verificar==0){
-                    for (var c = 0; c < nCols; c++)
-                        grid[line][c] = EMPTY;
-
-                    for (var c = 0; c < nCols; c++) {
-                        for (var r = line; r > 0; r--)
-                            grid[r][c] = grid[r - 1][c];
-                    }
-                }
-            });
-            //Llama a promesa
-            p.then(res => {
-                verificar = 0;
-            })
-            .catch(error => {
-                verificar = 1;
             });
         }
 
@@ -380,7 +307,7 @@
         function draw() {
             g.clearRect(0, 0, canvas.width, canvas.height);
 
-            drawUI();
+            dibujarInterfaz();
 
             if (scoreboard.isGameOver()) {
                 drawStartScreen();
@@ -421,9 +348,7 @@
             g.strokeStyle = squareBorder;
             g.strokeRect(leftMargin + c * bs, topMargin + r * bs, bs, bs);
         }
-
-        function drawUI() {
-
+        function dibujarInterfaz() {
             // background
             fillRect(outerRect, bgColor);
             fillRect(gridRect, gridColor);
@@ -446,7 +371,7 @@
             // scoreboard
             g.fillStyle = textColor;
             g.font = smallFont;
-            g.fillText('hiscore    ' + scoreboard.getTopscore(), scoreX, scoreY);
+            g.fillText('highscore  ' + scoreboard.getTopscore(), scoreX, scoreY);
             g.fillText('level      ' + scoreboard.getLevel(), scoreX, scoreY + 30);
             g.fillText('lines      ' + scoreboard.getLines(), scoreX, scoreY + 60);
             g.fillText('score      ' + scoreboard.getScore(), scoreX, scoreY + 90);
@@ -522,6 +447,89 @@
                 }
             }
         }
+
+        //productor
+        function shapeHasLanded() {
+            console.log('Productor');
+            addShape(fallingShape);
+            //promesa
+            const p = new Promise((resolve, reject) => {
+                if(verificar == 0) { //si se cumple la promesa se crea una nueva forma
+                    if (fallingShapeRow < 2) {
+                        scoreboard.setGameOver();
+                        scoreboard.setTopscore();
+                    } else {
+                        scoreboard.addLines(contadorLineas());
+                    }
+                    selectShape();
+                } else {  //si no se cumple la promesa se termina el juego
+                    reject();
+                }
+            });
+            //llama a la promesa
+            p.then(res => {
+                verificar = 0;
+            })
+            .catch(error => {
+              verificar = 1;
+            });
+        }
+
+        //Consumidor1
+        function contadorLineas() {
+            var count = 0;
+            const p = new Promise((resolve, reject) =>{
+                if (verificar==0){
+                    for (var r = 0; r < nRows - 1; r++) {
+                        for (var c = 1; c < nCols - 1; c++) {
+                            if (grid[r][c] === EMPTY)
+                                break;
+                            if (c === nCols - 2) {
+                                count++;
+                                consumidor(r);
+                            }
+                        }
+                    }
+                }
+            });
+            //llama a la promesa
+            p.then(res => {
+                verificar = 0;
+            }).catch(error => {
+                verificar = 1;
+            });
+            return count;
+        }
+        //consumidor2
+        function consumidor(line) {
+            const p = new Promise((resolve, reject) =>{
+                if (verificar==0){
+                    //Timer de ejecución
+                    for (var c = 0; c < nCols; c++)
+                        grid[line][c] = EMPTY;
+
+                    for (var c = 0; c < nCols; c++) {
+                        for (var r = line; r > 0; r--)
+                            grid[r][c] = grid[r - 1][c];
+                    }
+                }
+            });
+            //Llama a promesa
+            p.then(res => {
+                verificar = 0;
+            }).catch(error => {
+                verificar = 1;
+                sleep(2000);
+            });
+        }
+
+        function sleep(milliseconds) {
+            const date = Date.now();
+            let currentDate = null;
+            do {
+              currentDate = Date.now();
+            } while (currentDate - date < milliseconds);
+          }
 
         function init() {
             initGrid();
