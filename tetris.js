@@ -260,7 +260,6 @@
             }
 
             this.addLines = function (line) {
-
                 switch (line) {
                     case 1:
                         this.addScore(10);
@@ -519,7 +518,6 @@
                 verificar = 0;
             }).catch(error => {
                 verificar = 1;
-                sleep(2000);
             });
         }
 
