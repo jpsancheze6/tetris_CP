@@ -370,8 +370,7 @@
             g.font = smallFont;
             g.fillText('Punteo alto     ' + scoreboard.getTopscore(), scoreX, scoreY);
             g.fillText('Nivel           ' + scoreboard.getLevel(), scoreX, scoreY + 30);
-            g.fillText('Lineas          ' + scoreboard.getLines(), scoreX, scoreY + 60);
-            g.fillText('Punteo          ' + scoreboard.getScore(), scoreX, scoreY + 90);
+            g.fillText('Punteo          ' + scoreboard.getScore(), scoreX, scoreY + 60);
             g.fillText('Usos Productor  ' + cantidades_productor, scoreX, scoreY + 150);
             g.fillText('Usos Consumidor ' + cantidades_consumidor, scoreX, scoreY + 180);
 
