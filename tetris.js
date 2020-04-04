@@ -87,7 +87,6 @@
                     case 'ArrowDown':
                         if(canMove(fallingShape, down)) {
                             move(down);
-                            draw();
                         }
                 }
                 draw();
@@ -322,7 +321,7 @@
             g.fillText('Tetris', titleX, titleY);
 
             g.font = smallFont;
-            g.fillText('click to start', clickX, clickY);
+            g.fillText('Click para empezar', clickX, clickY);
         }
 
         function fillRect(r, color) {
@@ -367,10 +366,10 @@
             // scoreboard
             g.fillStyle = textColor;
             g.font = smallFont;
-            g.fillText('highscore  ' + scoreboard.getTopscore(), scoreX, scoreY);
-            g.fillText('level      ' + scoreboard.getLevel(), scoreX, scoreY + 30);
-            g.fillText('lines      ' + scoreboard.getLines(), scoreX, scoreY + 60);
-            g.fillText('score      ' + scoreboard.getScore(), scoreX, scoreY + 90);
+            g.fillText('Punteo alto ' + scoreboard.getTopscore(), scoreX, scoreY);
+            g.fillText('Nivel       ' + scoreboard.getLevel(), scoreX, scoreY + 30);
+            g.fillText('Lineas      ' + scoreboard.getLines(), scoreX, scoreY + 60);
+            g.fillText('Punteo      ' + scoreboard.getScore(), scoreX, scoreY + 90);
 
             // preview
             var minX = 5, minY = 5, maxX = 0, maxY = 0;
