@@ -85,13 +85,9 @@
 
                     case 's':
                     case 'ArrowDown':
-                        if (!fastDown) {
-                            fastDown = true;
-                            while (canMove(fallingShape, down)) {
-                                move(down);
-                                draw();
-                            }
-                            shapeHasLanded();
+                        if(canMove(fallingShape, down)) {
+                            move(down);
+                            draw();
                         }
                 }
                 draw();
@@ -278,6 +274,7 @@
                 }
 
                 lines += line;
+                sleep(2000);
                 if (lines > 10) {
                     this.addLevel();
                 }
@@ -506,7 +503,6 @@
                     //Timer de ejecución
                     for (var c = 0; c < nCols; c++)
                         grid[line][c] = EMPTY;
-
                     for (var c = 0; c < nCols; c++) {
                         for (var r = line; r > 0; r--)
                             grid[r][c] = grid[r - 1][c];
@@ -526,7 +522,9 @@
             let currentDate = null;
             do {
               currentDate = Date.now();
+              estado.innerHTML = 'Atendiendo consumidor';
             } while (currentDate - date < milliseconds);
+            estado.innerHTML = '';
           }
 
         function init() {
