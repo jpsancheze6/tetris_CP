@@ -10,7 +10,6 @@
         var down = { x: 0, y: 1 };
         var left = { x: -1, y: 0 };
 
-
         var cantidades_consumidor = 0;
         var cantidades_productor = 0;
         var bandera = true;
@@ -63,42 +62,37 @@
         addEventListener('keydown', function (event) {
             if (!keyDown) {
                 keyDown = true;
-
                 if (scoreboard.isGameOver())
                     return;
-
                 switch (event.key) {
-
                     case 'w':
                     case 'ArrowUp':
-                        if (canRotate(fallingShape))
+                        if (puedeRotar(fallingShape))
                             rotate(fallingShape);
                         break;
-
                     case 'a':
                     case 'ArrowLeft':
-                        if (canMove(fallingShape, left))
-                            move(left);
+                        if (puedeMover(fallingShape, left))
+                            mover(left);
                         break;
-
                     case 'd':
                     case 'ArrowRight':
-                        if (canMove(fallingShape, right))
-                            move(right);
+                        if (puedeMover(fallingShape, right))
+                            mover(right);
                         break;
 
                     case 's':
                     case 'ArrowDown':
-                        if(canMove(fallingShape, down)) {
-                            move(down);
+                        if(puedeMover(fallingShape, down)) {
+                            mover(down);
                         }
                 }
-                draw();
+                dibujar();
             }
         });
 
         addEventListener('click', function () {
-            startNewGame();
+            empezarJuego();
         });
 
         addEventListener('keyup', function () {
@@ -106,7 +100,7 @@
             fastDown = false;
         });
 
-        function canRotate(s) {
+        function puedeRotar(s) {
             if (s === Shapes.Square)
                 return false;
 
@@ -139,12 +133,12 @@
             });
         }
 
-        function move(dir) {
+        function mover(dir) {
             fallingShapeRow += dir.y;
             fallingShapeCol += dir.x;
         }
 
-        function canMove(s, dir) {
+        function puedeMover(s, dir) {
             return s.pos.every(function (p) {
                 var newCol = fallingShapeCol + dir.x + p[0];
                 var newRow = fallingShapeRow + dir.y + p[1];
@@ -153,7 +147,7 @@
         }
 
         //agrega la forma en el piso
-        function addShape(s) {
+        function agregarForma(s) {
             s.pos.forEach(function (p) {
                 grid[fallingShapeRow + p[1]][fallingShapeCol + p[0]] = s.ordinal;
             });
@@ -178,7 +172,7 @@
         };
 
         //2.genera las formas al azar
-        function getRandomShape() {
+        function figuraAleatoria() {
             var keys = Object.keys(Shapes); //formas
             var ord = Math.floor(Math.random() * keys.length);//genera la forma segun la posicion
             var shape = Shapes[keys[ord]];
@@ -194,11 +188,11 @@
         }
 
         //1.genera las formas una por una
-        function selectShape() {
+        function seleccionarFigura() {
             fallingShapeRow = 1; //posición de la figura vertical
             fallingShapeCol = 5; //posición de la figura horizontal
             fallingShape = nextShape;
-            nextShape = getRandomShape(); //genera la forma aleatoria
+            nextShape = figuraAleatoria(); //genera la forma aleatoria
             if (fallingShape != null) {
                 fallingShape.reset();
             }
@@ -301,7 +295,7 @@
             }
         }
 
-        function draw() {
+        function dibujar() {
             g.clearRect(0, 0, canvas.width, canvas.height);
 
             dibujarInterfaz();
@@ -415,12 +409,12 @@
 
             if (lastFrameTime + delay < time) {
                 if (!scoreboard.isGameOver()) {
-                    if (canMove(fallingShape, down)) {
-                        move(down);
+                    if (puedeMover(fallingShape, down)) {
+                        mover(down);
                     } else {
-                        shapeHasLanded();
+                        productor();
                     }
-                    draw();
+                    dibujar();
                     lastFrameTime = time;
                 } else {
                     cancelAnimationFrame(requestId);
@@ -428,9 +422,9 @@
             }
         }
 
-        function startNewGame() {
+        function empezarJuego() {
             initGrid();
-            selectShape();
+            seleccionarFigura();
             scoreboard.reset();
             animate(-1);
 
@@ -453,9 +447,9 @@
         }
 
         //productor
-        function shapeHasLanded() {
+        function productor() {
             cantidades_productor++;
-            addShape(fallingShape);
+            agregarForma(fallingShape);
             //promesa
             const p = new Promise((resolve, reject) => {
                 if(verificar == 0) { //si se cumple la promesa se crea una nueva forma
@@ -465,7 +459,7 @@
                     } else {
                         scoreboard.addLines(contadorLineas());
                     }
-                    selectShape();
+                    seleccionarFigura();
                 } else {  //si no se cumple la promesa se termina el juego
                     reject();
                 }
@@ -538,8 +532,8 @@
 
         function init() {
             initGrid();
-            selectShape();
-            draw();
+            seleccionarFigura();
+            dibujar();
         }
 
         init();
