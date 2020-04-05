@@ -1,6 +1,5 @@
 'use strict';
         var canvas = document.getElementById('espacio_trabajo');
-        var estado = document.getElementById('estado');
         canvas.width = 640;
         canvas.height = 640;
 
@@ -49,12 +48,11 @@
         var largeStroke = 5;
         var smallStroke = 2;
 
-        // position of falling shape
+        // posición de caída
         var fallingShapeRow;
         var fallingShapeCol;
 
         var keyDown = false;
-        var fastDown = false;
 
         var grid = [];
         var scoreboard = new Scoreboard();
@@ -97,7 +95,6 @@
 
         addEventListener('keyup', function () {
             keyDown = false;
-            fastDown = false;
         });
 
         function puedeRotar(s) {
@@ -344,7 +341,7 @@
             fillRect(outerRect, bgColor);
             fillRect(gridRect, gridColor);
 
-            // the blocks dropped in the grid
+            // los bloques colocados
             for (var r = 0; r < nRows; r++) {
                 for (var c = 0; c < nCols; c++) {
                     var idx = grid[r][c];
@@ -353,7 +350,7 @@
                 }
             }
 
-            // the borders of grid and preview panel
+            // bordes en el panel preview
             g.lineWidth = largeStroke;
             drawRect(gridRect, gridBorderColor);
             drawRect(previewRect, gridBorderColor);
@@ -525,9 +522,7 @@
             let currentDate = null;
             do {
               currentDate = Date.now();
-              estado.innerHTML = 'Atendiendo consumidor';
             } while (currentDate - date < milliseconds);
-            estado.innerHTML = '';
           }
 
         function init() {
